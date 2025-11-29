@@ -1,0 +1,255 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        1840
+      ],
+      "id": "80bc2e5e-9e5f-4d6c-877c-24da5687cd22",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        420,
+        1840
+      ],
+      "id": "52993323-b30b-4338-93ae-3b606c3062e2",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        1880
+      ],
+      "id": "8ad09e4e-dcb2-4420-a4bc-b325bde03771",
+      "name": "Wait",
+      "webhookId": "70538a4b-bb8e-48e7-9f38-5575d267d507"
+    },
+    {
+      "parameters": {
+        "content": "# Pega dados cliente e envia para webhook de pegar eventos",
+        "height": 680,
+        "width": 2160,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        1600
+      ],
+      "id": "de9c92b4-1d8b-41b7-be1a-21f8733be2ec",
+      "name": "Sticky Note57"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06b2a735-7e26-48d6-8458-5e190f3f4bfe",
+              "name": "nome",
+              "value": "={{ $json.nome }}",
+              "type": "string"
+            },
+            {
+              "id": "a46a3100-a8b6-4e74-b0ac-7269d5555d20",
+              "name": "telefone",
+              "value": "={{ $json.contato }}",
+              "type": "number"
+            },
+            {
+              "id": "004b413a-3cbb-482e-b248-1250e8f7ee99",
+              "name": "id",
+              "value": "={{ $json.ID }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        1880
+      ],
+      "id": "dffe4391-35f3-4a17-9470-dcc8e23f7b2b",
+      "name": "normaliza_clientes1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        740,
+        1720
+      ],
+      "id": "068eb181-a69b-49e9-b698-794e126260c1",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://automatemaiawh.sagadatadriven.com.br/webhook/inicia-ligacao",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"nome\": \"{{ $('normaliza_clientes1').item.json.nome }}\",\n  \"telefone\": \"{{ $('normaliza_clientes1').item.json.telefone }}\",\n\"id\": \"{{ $json.id }}\"\n\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        1880
+      ],
+      "id": "872eda76-0a31-4296-aaeb-054594b1ab84",
+      "name": "envia_dados_cliente1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "nao_faz_nada1",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        1880
+      ],
+      "id": "0a1e69cf-9bb9-41af-9c07-b2d5c0ef065d"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1k8RnWON40f90cQ5-8Bnp2SjiyxqlB3YeKBZMcdrYEqE/edit?gid=172408383#gid=172408383",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 172408383,
+          "mode": "list",
+          "cachedResultName": "Planilha1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k8RnWON40f90cQ5-8Bnp2SjiyxqlB3YeKBZMcdrYEqE/edit#gid=172408383"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        180,
+        1840
+      ],
+      "id": "7ab57d1d-bf14-4857-b980-021750b5ca0f",
+      "name": "pega_clientes_csv1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BkASLxVX6iz1NS6f",
+          "name": "Google Sheets account 6"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "pega_clientes_csv1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "normaliza_clientes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "nao_faz_nada1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normaliza_clientes1": {
+      "main": [
+        [
+          {
+            "node": "envia_dados_cliente1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "envia_dados_cliente1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nao_faz_nada1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pega_clientes_csv1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33738330930e3881dd5571eca013f36ddf8aab20e4ea5c1f2ebaf4a2b4668ac6"
+  }
+}
