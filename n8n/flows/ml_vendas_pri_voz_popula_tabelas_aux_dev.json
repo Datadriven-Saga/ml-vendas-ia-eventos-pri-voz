@@ -1,0 +1,181 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        40,
+        200
+      ],
+      "id": "55efe88a-4b61-4571-a52f-078792f9118a",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94c4399f-3510-441a-be2e-da1016f700b0",
+              "name": "hyunda_anapolis",
+              "value": "18365",
+              "type": "string"
+            },
+            {
+              "id": "1d5c3ffe-9139-43b4-8bef-e83fdc2232c3",
+              "name": "porto_velho",
+              "value": "18401",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        20
+      ],
+      "id": "ac0022fe-b7f0-4881-910c-84abcd12025e",
+      "name": "dealer_id_loja"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "pri_11_leads_prospect",
+          "mode": "list",
+          "cachedResultName": "pri_11_leads_prospect"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        280,
+        20
+      ],
+      "id": "bbe8adec-bdba-42e3-ab4b-ecd28aabef61",
+      "name": "insere_eventos",
+      "credentials": {
+        "postgres": {
+          "id": "3v9iwxF65YhYa3ZD",
+          "name": "pg_pri_11_n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "pri_11_leads_prospect",
+          "mode": "list",
+          "cachedResultName": "pri_11_leads_prospect"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        280,
+        200
+      ],
+      "id": "071fec25-69ab-4927-af30-4a8a4b75202e",
+      "name": "insere_cliente",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "3v9iwxF65YhYa3ZD",
+          "name": "pg_pri_11_n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "pri_11_leads_prospect",
+          "mode": "list",
+          "cachedResultName": "pri_11_leads_prospect"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "cpf",
+              "value": "={{ $json.cpf }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        500,
+        200
+      ],
+      "id": "962a932e-2e95-4548-b0fb-4b695ed09388",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "3v9iwxF65YhYa3ZD",
+          "name": "pg_pri_11_n8n"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "insere_cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dealer_id_loja": {
+      "main": [
+        [
+          {
+            "node": "insere_eventos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "insere_cliente": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33738330930e3881dd5571eca013f36ddf8aab20e4ea5c1f2ebaf4a2b4668ac6"
+  }
+}
