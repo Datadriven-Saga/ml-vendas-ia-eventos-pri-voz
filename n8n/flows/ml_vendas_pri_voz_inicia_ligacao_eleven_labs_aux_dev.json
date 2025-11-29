@@ -1,0 +1,309 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "inicia-ligacao",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        0
+      ],
+      "id": "b6813a13-e845-44c2-9efa-4d1bb5b15990",
+      "name": "wh_pega_dados_para_ligar",
+      "webhookId": "adf8eaa2-4aff-4c57-9958-a0fc7cfc9d9e"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a7dca034-be89-4b38-861b-38ac0cb80674",
+              "name": "telefone",
+              "value": "={{ $('wh_pega_dados_para_ligar').item.json.body.telefone }}",
+              "type": "string"
+            },
+            {
+              "id": "0be36b92-878b-423b-b1c9-05b63fa4d514",
+              "name": "cliente_nome",
+              "value": "={{ $('separa_variaveis').item.json.nome_cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "97037fdb-5bbf-444b-9d0b-14a3032b6ef2",
+              "name": "dados_cliente",
+              "value": "={{ $('separa_variaveis').item.json.dados_cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "fb013d85-2acb-48ff-b9e5-e476a45ee69c",
+              "name": "agent_id",
+              "value": "={{ $json.agent_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        0
+      ],
+      "id": "30ed3f59-ef21-4685-8c07-9c74b8a80631",
+      "name": "normaliza_dados"
+    },
+    {
+      "parameters": {
+        "content": "## Recebe e prepara dados para iniciar ligação\n",
+        "height": 260,
+        "width": 1120,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -80
+      ],
+      "id": "f27c0715-237e-4c85-8cba-f12170d5463d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_9203e90d1a42eec18def8b1f67a2c0b6329d87735d89f164"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "agent_id",
+              "value": "agent_4401k9qesgahedtvw3zctfjvcm2s"
+            },
+            {
+              "name": "agent_phone_number_id",
+              "value": "phnum_0401ka131wr0e4qbyntjrt9m3x3m"
+            },
+            {
+              "name": "to_number",
+              "value": "={{ $('prepara_envio').item.json.to_phone_number }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        0
+      ],
+      "id": "f7059e5d-ca56-4d55-baec-4982101bed7d",
+      "name": "inicia_ligacao_twilio"
+    },
+    {
+      "parameters": {
+        "content": "## Inicia ligação do agente de voz via Twilio",
+        "height": 260,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -80
+      ],
+      "id": "e774ce6f-a307-4cad-a3a5-663f9f0deb7b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "29743bed-1d95-4873-ac0f-5c770f11a027",
+              "name": "agent_id",
+              "value": "agent_4401k9qesgahedtvw3zctfjvcm2s",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -120,
+        0
+      ],
+      "id": "d3b61608-9639-48d3-803b-3b5697b3031a",
+      "name": "normaliza_agent_id"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: {\n    agent_id: $input.first().json.agent_id,\n    from_phone_number: \"+556223980043\",\n    to_phone_number: \"+55\" + $input.first().json.telefone,\n    metadata: {\n      nome_cliente: $input.first().json.cliente_nome,\n      dados_cliente: $input.first().json.dados_cliente\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "eec832dc-ab41-4b46-9e7d-806de4954021",
+      "name": "prepara_envio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "957acfc0-9161-481e-8fb4-5cfdc93f8446",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -500,
+        0
+      ],
+      "id": "62512c4a-060a-44fc-a8dd-eab8b0e08421",
+      "name": "normalize_body"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\n\nconst nome_cliente = body.nome;\n\nconst dados_cliente = {\n  nome: body.nome,\n  telefone: body.telefone\n};\nreturn [\n  {\n    nome_cliente,\n    dados_cliente\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "8557b42f-8953-4101-a95d-2a35a8403d71",
+      "name": "separa_variaveis"
+    }
+  ],
+  "connections": {
+    "wh_pega_dados_para_ligar": {
+      "main": [
+        [
+          {
+            "node": "normalize_body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normaliza_dados": {
+      "main": [
+        [
+          {
+            "node": "prepara_envio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normaliza_agent_id": {
+      "main": [
+        [
+          {
+            "node": "normaliza_dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepara_envio": {
+      "main": [
+        [
+          {
+            "node": "inicia_ligacao_twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_body": {
+      "main": [
+        [
+          {
+            "node": "separa_variaveis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "separa_variaveis": {
+      "main": [
+        [
+          {
+            "node": "normaliza_agent_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "wh_pega_dados_para_ligar": [
+      {
+        "headers": {
+          "host": "automatemaiawh.sagadatadriven.com.br",
+          "user-agent": "axios/1.8.2",
+          "content-length": "55",
+          "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+          "accept-encoding": "gzip, compress, deflate, br",
+          "content-type": "application/json",
+          "x-forwarded-for": "107.23.231.171",
+          "x-forwarded-host": "automatemaiawh.sagadatadriven.com.br",
+          "x-forwarded-port": "443",
+          "x-forwarded-proto": "https",
+          "x-forwarded-server": "f8207a8c3aa7",
+          "x-real-ip": "107.23.231.171"
+        },
+        "params": {},
+        "query": {},
+        "body": {
+          "nome": "João Cunha",
+          "telefone": "62992559884",
+          "id": ""
+        },
+        "webhookUrl": "https://automatemaiawh.sagadatadriven.com.br/webhook/inicia-ligacao",
+        "executionMode": "production"
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "33738330930e3881dd5571eca013f36ddf8aab20e4ea5c1f2ebaf4a2b4668ac6"
+  }
+}
