@@ -1,0 +1,231 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        520,
+        200
+      ],
+      "id": "443076b4-8ff8-4ffb-9fe1-e4cf9e3058de",
+      "name": "loop_over_itens"
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "=telefone_agente",
+              "value": "={{ $json.telefone }}"
+            },
+            {
+              "key": "telefone",
+              "value": "={{ $json.telefone }}"
+            },
+            {
+              "key": "proposta",
+              "value": "={{ $json.proposta }}"
+            },
+            {
+              "key": "nome",
+              "value": "={{ $json.nome_completo }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1,
+      "position": [
+        820,
+        220
+      ],
+      "id": "f810e6fd-8f80-434c-aa4b-2222e5188d3e",
+      "name": "salva_dados_debug1"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        200
+      ],
+      "id": "c817ee56-cd88-4aa0-a3fb-fc58e2be1035",
+      "name": "wait",
+      "webhookId": "22971b3c-0190-4b52-92c0-fc32acb58895"
+    },
+    {
+      "parameters": {
+        "content": "# Verifica próxima tentativa de ligação",
+        "height": 420,
+        "width": 1880,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        20
+      ],
+      "id": "ea95d62d-a3b0-4ca0-bb9e-005dbb788c45",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        840,
+        40
+      ],
+      "id": "86d4d47a-8f6e-4fb6-9f69-6ae070cd2efa",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *\nFROM public.pri_11_leads_prospect\nWHERE status NOT IN ($1, $2)\n  AND tentativas < $3\n  AND proximo_contato >= (NOW() - INTERVAL '23 hours')\n  AND proximo_contato <= NOW()\n  AND tel_maia NOT IN ($4, $5);",
+        "options": {
+          "queryReplacement": "inativo,desativar,4,6234120023,6298150264"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        200
+      ],
+      "id": "838a5229-cc9e-4768-8173-27e4feb2c41e",
+      "name": "pg_filtra_ligacao",
+      "credentials": {
+        "postgres": {
+          "id": "3v9iwxF65YhYa3ZD",
+          "name": "pg_pri_11_n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://automatemaiawh.sagadatadriven.com.br/webhook/inicia-ligacao",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"nome\": \"{{ $('normaliza_clientes1').item.json.nome }}\",\n  \"telefone\": \"{{ $('normaliza_clientes1').item.json.telefone }}\",\n  \"cpf\": \"{{ $('normaliza_clientes1').item.json.cpf }}\",\n  \"origem\": \"{{ $('normaliza_clientes1').item.json.origem }}\",\n  \"evt_id\": \"{{ $('normaliza_clientes1').item.json.evt_id }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        220
+      ],
+      "id": "1bf02074-315e-441c-884a-22f5f7c7c67b",
+      "name": "envia_dados_cliente1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        40,
+        200
+      ],
+      "id": "e8c7861b-dc3f-41b4-a25e-cd379971b8e4",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "connections": {
+    "loop_over_itens": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "salva_dados_debug1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "salva_dados_debug1": {
+      "main": [
+        [
+          {
+            "node": "envia_dados_cliente1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wait": {
+      "main": [
+        [
+          {
+            "node": "loop_over_itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pg_filtra_ligacao": {
+      "main": [
+        [
+          {
+            "node": "loop_over_itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "envia_dados_cliente1": {
+      "main": [
+        [
+          {
+            "node": "wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "pg_filtra_ligacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33738330930e3881dd5571eca013f36ddf8aab20e4ea5c1f2ebaf4a2b4668ac6"
+  }
+}
