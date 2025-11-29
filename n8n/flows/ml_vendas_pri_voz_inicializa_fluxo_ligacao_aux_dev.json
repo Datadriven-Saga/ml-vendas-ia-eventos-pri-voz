@@ -1,0 +1,264 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        580,
+        240
+      ],
+      "id": "5652a653-a31c-4278-9e88-1c5c405da8c5",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        280
+      ],
+      "id": "7e66a269-1be8-471e-8234-4cf90dae08ef",
+      "name": "Wait",
+      "webhookId": "70538a4b-bb8e-48e7-9f38-5575d267d507"
+    },
+    {
+      "parameters": {
+        "content": "# Pega dados cliente e envia para webhook de iniciar ligação. PRIMEIRA TENTATIVA",
+        "height": 680,
+        "width": 2160,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "66767fec-138c-45ec-a502-9fa8164b3ec3",
+      "name": "Sticky Note57"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06b2a735-7e26-48d6-8458-5e190f3f4bfe",
+              "name": "nome",
+              "value": "={{ $json[\"nome cliente\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "a46a3100-a8b6-4e74-b0ac-7269d5555d20",
+              "name": "telefone",
+              "value": "={{ $json[\"telefone cliente\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "f09bb680-2cfd-477e-b519-3a6681fc530a",
+              "name": "id_proposta",
+              "value": "={{ $json[\"código proposta\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        840,
+        280
+      ],
+      "id": "3c509bc6-e4bd-4b03-b99a-1f450bb426fb",
+      "name": "normaliza_clientes1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        900,
+        120
+      ],
+      "id": "cb9a5a38-75d8-4e39-837f-1271de74d4cb",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "nao_faz_nada1",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        280
+      ],
+      "id": "b9041803-b870-4bbc-9992-03fc08ca6619"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 18,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        140,
+        240
+      ],
+      "id": "5a01b1da-24b5-4977-adea-0cf349961545",
+      "name": "primeira_tentativa"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1F-riZG0LnHEzgjkKWPect0AC_frRavUJMceKnKfT8XA/edit?gid=1387532217#gid=1387532217",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1387532217,
+          "mode": "list",
+          "cachedResultName": "clientes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F-riZG0LnHEzgjkKWPect0AC_frRavUJMceKnKfT8XA/edit#gid=1387532217"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        360,
+        240
+      ],
+      "id": "c2295fbd-292f-4f2e-bc26-2f94ac9eb83f",
+      "name": "pega_clientes_csv1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BkASLxVX6iz1NS6f",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://automatemaiawh.sagadatadriven.com.br/webhook/inicia-ligacao",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"nome\": \"{{ $('normaliza_clientes1').item.json.nome }}\",\n  \"telefone\": \"{{ $('normaliza_clientes1').item.json.telefone }}\",\n  \"id_proposta\": {{ $json.id_proposta }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        280
+      ],
+      "id": "71cb70e7-b93b-4242-b883-b7177e71ad4b",
+      "name": "envia_dados_cliente"
+    }
+  ],
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "normaliza_clientes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "nao_faz_nada1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normaliza_clientes1": {
+      "main": [
+        [
+          {
+            "node": "envia_dados_cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nao_faz_nada1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "primeira_tentativa": {
+      "main": [
+        [
+          {
+            "node": "pega_clientes_csv1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pega_clientes_csv1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "envia_dados_cliente": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33738330930e3881dd5571eca013f36ddf8aab20e4ea5c1f2ebaf4a2b4668ac6"
+  }
+}
