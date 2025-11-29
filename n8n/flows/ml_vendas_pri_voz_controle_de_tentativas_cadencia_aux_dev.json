@@ -1,0 +1,693 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "maia_cadencia_geral",
+          "mode": "list",
+          "cachedResultName": "maia_cadencia_geral"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tel_maia": "={{ $('wh_cadencia_geral').item.json.body.maia }}",
+            "tel_lead": "={{ $('wh_cadencia_geral').item.json.body.lead }}",
+            "mensagem": "={{ $('wh_cadencia_geral').item.json.body.msg }}",
+            "status": "pendente",
+            "proximo_contato": "={{ $now.plus(20, 'minute') }}",
+            "ultima_mensagem": "={{ $now }}",
+            "proposta": "={{ $('wh_cadencia_geral').item.json.body.proposalid }}",
+            "dealerid": "={{ $('wh_cadencia_geral').item.json.body.dealerid }}",
+            "tentativas": "={{ $('wh_cadencia_geral').item.json.body.tentativas }}"
+          },
+          "matchingColumns": [
+            "tel_lead",
+            "tel_maia"
+          ],
+          "schema": [
+            {
+              "id": "tel_lead",
+              "displayName": "tel_lead",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tel_maia",
+              "displayName": "tel_maia",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "proximo_contato",
+              "displayName": "proximo_contato",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "tentativas",
+              "displayName": "tentativas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "ultima_mensagem",
+              "displayName": "ultima_mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "proposta",
+              "displayName": "proposta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "dealerid",
+              "displayName": "dealerid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        920,
+        160
+      ],
+      "id": "16f226a9-ae78-48c2-9a7b-87fb20414a55",
+      "name": "pg_update_cadencia",
+      "credentials": {
+        "postgres": {
+          "id": "3v9iwxF65YhYa3ZD",
+          "name": "pg_pri_11_n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "419d11e5-2fd9-4ba9-8877-78fdc24b9eba",
+              "leftValue": "={{ $json.body.acao }}",
+              "rightValue": "ativar",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        320
+      ],
+      "id": "715b2144-1b1d-46ef-acdf-6b87e1b4e333",
+      "name": "ativa_desativa_cadencia"
+    },
+    {
+      "parameters": {
+        "content": "# Controle de Follow up",
+        "height": 620,
+        "width": 1400,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        120
+      ],
+      "typeVersion": 1,
+      "id": "b1a54044-0c20-4835-ba98-c39cbc36f6e9",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        660,
+        440
+      ],
+      "id": "e4b7729a-f00b-4616-887e-3788b04e1b84",
+      "name": "do_nothing"
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "cadencia",
+              "value": "={{ $json.body.tempo }}h"
+            },
+            {
+              "key": "telefone",
+              "value": "={{ $json.body.lead }}"
+            },
+            {
+              "key": "proposta",
+              "value": "={{ $json.body.proposalid }}"
+            },
+            {
+              "key": "acao",
+              "value": "={{ $json.body.acao }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1,
+      "position": [
+        220,
+        580
+      ],
+      "id": "460d79de-18cf-4503-98d1-80d3c09cafc8",
+      "name": "salva_dados_debug"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('wh_cadencia_geral').item.json.body.tentativas }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "number",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "51f928e1-86c7-4cd0-9979-4adada4230d1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "tentativas ok"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        660,
+        220
+      ],
+      "id": "114766e2-d6bd-4ec8-ac25-3dc0eea4aacf",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cadencia-ligacao",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -40,
+        420
+      ],
+      "id": "0654b635-e7c4-48b2-bb0f-0a4572f57895",
+      "name": "wh-cadencia-ligacao",
+      "webhookId": "7ea6e838-d751-47f0-b05f-a5c381cf17d7"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "maia_cadencia_geral",
+          "mode": "list",
+          "cachedResultName": "maia_cadencia_geral"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tel_maia": "={{ $json.body.maia }}",
+            "tel_lead": "={{ $json.body.lead }}",
+            "mensagem": "={{ $json.body.msg }}",
+            "proximo_contato": "2025-06-20T00:00:00",
+            "status": "=inativo",
+            "ultima_mensagem": "={{  $now }}",
+            "proposta": "={{ $json.body.proposalid }}"
+          },
+          "matchingColumns": [
+            "tel_lead",
+            "tel_maia"
+          ],
+          "schema": [
+            {
+              "id": "tel_lead",
+              "displayName": "tel_lead",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tel_maia",
+              "displayName": "tel_maia",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "proximo_contato",
+              "displayName": "proximo_contato",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "tentativas",
+              "displayName": "tentativas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "ultima_mensagem",
+              "displayName": "ultima_mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "proposta",
+              "displayName": "proposta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "dealerid",
+              "displayName": "dealerid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        440
+      ],
+      "id": "864fc340-0c73-46ad-8cc5-777e44467f11",
+      "name": "pg_update_nao_fazer_cadencia",
+      "credentials": {
+        "postgres": {
+          "id": "3v9iwxF65YhYa3ZD",
+          "name": "pg_pri_11_n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "loja_maia",
+          "mode": "list",
+          "cachedResultName": "loja_maia"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "num_maia",
+              "value": "={{ $json.body.maia }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        220
+      ],
+      "id": "e7b986d8-0a0d-453c-ac9f-ba3ce3afd308",
+      "name": "pg_pega_variaveis_pri_voz",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "3v9iwxF65YhYa3ZD",
+          "name": "pg_pri_11_n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "maia_cadencia_geral",
+          "mode": "list",
+          "cachedResultName": "maia_cadencia_geral"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tel_maia": "={{ $('wh_cadencia_geral').item.json.body.maia }}",
+            "tel_lead": "={{ $('wh_cadencia_geral').item.json.body.lead }}",
+            "mensagem": "={{ $('wh_cadencia_geral').item.json.body.msg }}",
+            "status": "pendente",
+            "proximo_contato": "={{ $now.plus(20, 'minute') }}",
+            "ultima_mensagem": "={{ $now }}",
+            "proposta": "={{ $('wh_cadencia_geral').item.json.body.proposalid }}",
+            "dealerid": "={{ $('wh_cadencia_geral').item.json.body.dealerid }}",
+            "tentativas": 0
+          },
+          "matchingColumns": [
+            "tel_lead",
+            "tel_maia"
+          ],
+          "schema": [
+            {
+              "id": "tel_lead",
+              "displayName": "tel_lead",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tel_maia",
+              "displayName": "tel_maia",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mensagem",
+              "displayName": "mensagem",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "proximo_contato",
+              "displayName": "proximo_contato",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "tentativas",
+              "displayName": "tentativas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "ultima_mensagem",
+              "displayName": "ultima_mensagem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "proposta",
+              "displayName": "proposta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "dealerid",
+              "displayName": "dealerid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        920,
+        320
+      ],
+      "id": "23eeabb4-e9a2-4881-a73e-208438f44646",
+      "name": "pg_update_cadencia1",
+      "credentials": {
+        "postgres": {
+          "id": "3v9iwxF65YhYa3ZD",
+          "name": "pg_pri_11_n8n"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "ativa_desativa_cadencia": {
+      "main": [
+        [
+          {
+            "node": "pg_pega_variaveis_pri_voz",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "pg_update_nao_fazer_cadencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "pg_update_cadencia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "pg_update_cadencia1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wh-cadencia-ligacao": {
+      "main": [
+        [
+          {
+            "node": "ativa_desativa_cadencia",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "salva_dados_debug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pg_update_nao_fazer_cadencia": {
+      "main": [
+        [
+          {
+            "node": "do_nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pg_pega_variaveis_pri_voz": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33738330930e3881dd5571eca013f36ddf8aab20e4ea5c1f2ebaf4a2b4668ac6"
+  }
+}
